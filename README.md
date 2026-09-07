@@ -25,6 +25,9 @@ l'historique du shell.
 
 ## Installation
 
+> Vous n'avez jamais installé de serveur MCP ? Suivez plutôt **[INSTALLATION.md](INSTALLATION.md)** :
+> la même chose en cinq étapes, avec les pièges nommés et de quoi vérifier que ça marche.
+
 ```bash
 git clone https://github.com/tnemelclement/mcp-email.git
 cd mcp-email
