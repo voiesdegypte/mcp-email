@@ -3,6 +3,9 @@
 Vingt minutes, trois boîtes, aucun compte développeur. À la fin, Claude lit, cherche, classe,
 prépare des brouillons et envoie sur toutes vos adresses, chacune appelée par son nom court.
 
+Une dernière étape, facultative, lui donne la main sur votre navigateur pour les sites qui n'ont
+pas de connecteur : portail fournisseur, back-office, extranet.
+
 Notice pas à pas, écrite pour quelqu'un qui n'a jamais installé de serveur MCP. Le `README.md`
 de ce dépôt reste la référence technique.
 
@@ -20,12 +23,28 @@ des serveurs d'entreprise fonctionnent.
 mot de passe sur ces protocoles au profit d'un mécanisme que ce serveur ne gère pas. Si vos
 boîtes sont sur Microsoft 365, arrêtez ici et demandez-nous l'alternative.
 
-**2. La validation en deux étapes** doit être active sur chaque boîte à brancher. Elle
-conditionne la création d'un mot de passe d'application, qui est la clé utilisée ici.
+**2. La validation en deux étapes**, active sur chaque boîte à brancher. Elle conditionne la
+création d'un mot de passe d'application, qui est la clé utilisée ici.
+
+Test en dix secondes, à refaire pour chaque boîte : ouvrez
+https://myaccount.google.com/apppasswords. Si la page affiche un champ de création, la
+validation est active et vous pouvez continuer. Si Google vous redirige ou annonce que l'option
+n'est pas disponible, activez-la sur https://myaccount.google.com/signinoptions/twosv avant de
+revenir ici. Comptez cinq minutes, et sachez que vos autres appareils redemanderont une
+connexion.
+
+La validation se règle compte par compte, pas par domaine : trois boîtes demandent trois
+vérifications. Sur Google Workspace, un bouton grisé signale un réglage verrouillé par
+l'administrateur du domaine, qui seul peut le lever.
 
 **3. Node.js version 18 ou plus récente** sur la machine. Vérification : `node --version`.
 
 **4. Claude Code ou Claude Desktop** installé et connecté.
+
+Pour l'étape navigateur seulement, votre abonnement doit venir d'Anthropic : Pro, Max, Team ou
+Enterprise. Une clé API, un jeton `claude setup-token` ou un accès passant par Amazon Bedrock,
+Google Vertex AI ou Microsoft Foundry laissent le navigateur hors service. La partie mail
+fonctionne dans tous les cas.
 
 ## Étape 1 : installer le serveur
 
@@ -128,6 +147,42 @@ courts. Enchaînez avec « les cinq derniers mails non lus sur pro » pour valid
 
 Si la liste apparaît, l'installation est finie.
 
+## Étape 6, facultative : donner le navigateur à Claude
+
+Le connecteur mail s'arrête à vos boîtes. Vos autres outils web, eux, n'ont souvent aucune API :
+un portail fournisseur, un back-office, un extranet de mutuelle. Claude sait piloter votre
+navigateur pour ceux-là.
+
+Lisez la section sécurité plus bas avant d'installer. Cette étape ouvre un accès bien plus large
+que le connecteur mail.
+
+```bash
+claude --chrome
+```
+
+Un écran d'accueil s'affiche la première fois, Entrée pour continuer. Si l'extension manque,
+Claude vous propose de l'installer et enchaîne la configuration dans la même session.
+
+Installation manuelle au besoin :
+[Claude in Chrome](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn),
+version 1.0.36 ou plus récente.
+
+Vérifiez avec `/chrome` dans la session. Tout est en place quand le panneau affiche
+« Status: Enabled » et « Extension: Installed ».
+
+Pour l'activer à chaque démarrage sans le drapeau : `/chrome`, puis « Enabled by default ». En
+contrepartie, les outils du navigateur restent chargés en permanence et consomment de la
+mémoire de conversation.
+
+Chrome, Edge, Brave, Arc, Vivaldi et Opera fonctionnent. Le sous-système Linux de Windows (WSL)
+n'est pas pris en charge.
+
+### Trois exemples
+
+- « Va sur le portail fournisseur, relève les commandes en attente et fais-m'en un tableau »
+- « Ouvre cette facture dans le back-office et vérifie qu'elle correspond au mail reçu hier »
+- « Remplis ce formulaire avec les informations du devis »
+
 ## Ce que vous pouvez demander ensuite
 
 - « Cherche tous les mails de ce client depuis janvier, sur les trois boîtes »
@@ -163,6 +218,19 @@ Commencez par une boîte secondaire, le temps de voir comment il travaille.
 Pour couper l'accès : révoquez le mot de passe d'application chez votre fournisseur. L'effet est
 immédiat, et votre propre connexion n'est pas affectée.
 
+### Le navigateur, si vous avez fait l'étape 6
+
+**Claude hérite de toutes vos sessions ouvertes.** Votre banque, votre CRM, vos outils RH : tout
+site où vous êtes déjà connecté devient atteignable. Le connecteur mail, lui, se limite aux
+boîtes que vous avez déclarées. Pesez cet écart avant d'installer l'extension.
+
+Vous gardez la main sur trois points. Les actions se déroulent dans une fenêtre Chrome que
+vous voyez travailler en direct. Claude s'arrête devant une page de connexion ou un CAPTCHA et
+vous rend la main. Le périmètre se règle site par site dans les réglages de l'extension :
+commencez serré, ouvrez ensuite.
+
+Pour couper l'accès : désactivez ou retirez l'extension dans Chrome.
+
 ## Si ça coince
 
 **L'authentification échoue alors que le mot de passe semble bon.** Vérifiez qu'il s'agit du mot
@@ -177,3 +245,10 @@ obtenir les noms exacts.
 
 **Gmail refuse la connexion.** Vérifiez que l'accès IMAP est activé dans les réglages Gmail,
 onglet « Transfert et POP/IMAP ».
+
+**Le navigateur reste éteint malgré `--chrome`.** Vérifiez votre mode de connexion avec
+`/login`. Une clé API ou un jeton `claude setup-token` désactive cette fonction sans le dire.
+
+**`/chrome` annonce l'extension absente alors qu'elle est installée.** Vérifiez sa version dans
+la page des extensions de Chrome : elle doit être en 1.0.36 ou plus récente. Rechargez-la, puis
+relancez `/chrome` et choisissez « Reconnect ».
